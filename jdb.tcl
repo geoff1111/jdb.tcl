@@ -1,6 +1,8 @@
 #! ./jimsh
 # Adjust the path above to path for jimsh, e.g. /usr/bin/jimsh
 # Copyright (c) Geoffrey P. Messer 2025.
+# GNU Affero General Public Licenced (Version 3.0).
+
 if {$argv in {-h -? --help}} {
   puts {
 Simple JimTcl debugger
