@@ -99,7 +99,7 @@ test b3k-004.001 {parse-hdr REQUEST_METHOD and REQUEST_URI test} -body {
     _puts <dbg>$::w4(REQUEST_METHOD),$::w4(REQUEST_URI)</dbg>
     _exit
   }
-} -match regexp -result {GET,/}
+} -result {GET,/}
 
 test b3k-004.002 {parse-hdr overall test} -body {
   debug $script {
