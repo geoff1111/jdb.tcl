@@ -137,6 +137,6 @@ test b3k-004.003 {parse-hdr PATH_INFO, REQUEST_URI, QUERY_STRING test} -body {
     _puts <dbg>$::w4(PATH_INFO),$::w4(REQUEST_URI),$::w4(QUERY_STRING)</dbg>
     _exit
   }
-} -match exact -result {/go/to/path,/go/to/path?name=geoff,name=geoff}
+} -result {/go/to/path,/go/to/path?name=geoff,name=geoff}
 
 testreport
