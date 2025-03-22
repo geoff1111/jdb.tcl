@@ -138,3 +138,5 @@ test b3k-004.003 {parse-hdr PATH_INFO, REQUEST_URI, QUERY_STRING test} -body {
     _exit
   }
 } -match exact -result {/go/to/path,/go/to/path?name=geoff,name=geoff}
+
+testreport
