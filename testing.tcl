@@ -1,6 +1,7 @@
 source [file join [file dirname [info script]] .. jimtcl tcltest.tcl]
 # the above needs to source the JimTcl version of tcltest.tcl
 # Copyright (c) Geoffrey P. Messer 2025.
+# GNU Affero General Public Licensed (Version 3).
 
 needs constraint jim
 
