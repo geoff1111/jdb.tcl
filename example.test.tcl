@@ -82,7 +82,7 @@ test b3k-002.001 {setpeername test for REMOTE_ADDR and REMOTE_PORT} -body {
   }
 } -match regexp -result {^127.0.0.1:[0-9]+$}
 
-test b3k-004.001 {parse-hdr test1} -body {
+test b3k-004.001 {parse-hdr REQUEST_METHOD and REQUEST_URI test} -body {
   debug $script {
     # set breakpoint (A) (once server running)
     b proc:parse-hdr:1
@@ -101,7 +101,7 @@ test b3k-004.001 {parse-hdr test1} -body {
   }
 } -match regexp -result {GET,/}
 
-test b3k-004.002 {parse-hdr test2} -body {
+test b3k-004.002 {parse-hdr overall test} -body {
   debug $script {
     # set breakpoint (A) (once server running)
     b proc:parse-hdr:1
@@ -120,7 +120,7 @@ test b3k-004.002 {parse-hdr test2} -body {
   }
 } -match regexp -result {authdb \{\} bandir \{\} bantime [0-9]+ mxage [0-9]+ mxcontent [0-9]+ mxhdr [0-9]+ sa 0 SERVER_NAME 127.0.0.1 SERVER_PORT 8080 SERVER_PROTOCOL http:// SERVER_SOFTWARE b2k .bytegot [0-9]+ .bytesent 0 .csp \{default-src 'self'\} .hdr:AUTH \{\} .mimetype \{text/html; charset=utf-8\} .reply \{\} .reply-code \{200 Ok\} .closeConn 0 DOCUMENT_ROOT \{\} GATEWAY_INTERFACE CGI/1.0 HTTP_HOST 127.0.0.1:8080 _HTTP_HOST \{\} REMOTE_ADDR 127.0.0.1 REMOTE_PORT [0-9]+ REQUEST_URI / SAME_ORIGIN 0 SCRIPT_FILENAME .*/b3k.tcl SERVER_ROOT .*/b3k.tcl cgiparam \{ACCEPT HTTP_ACCEPT ACCEPT-ENCODING HTTP_ACCEPT_ENCODING AUTHORIZATION .hdr:AUTH CONNECTION .hdr:CONN CONTENT-LENGTH CONTENT_LENGTH CONTENT-TYPE CONTENT_TYPE COOKIE HTTP_COOKIE HOST HTTP_HOST IF-MODIFIED-SINCE HTTP_IF_MODIFIED_SINCE IF-NONE-MATCH HTTP_IF_NONE_MATCH RANGE .hdr:RANGE REFERER HTTP_REFERER USER-AGENT HTTP_USER_AGENT\} hacks \{/../ /./ _SELECT_ _select_ _sleep_ _OR_ _AND_ /etc/passwd /bin/sh /.git/ /swagger.yaml /phpThumb.php /.htpasswd /.passwd /tomcat/manager/status/ /WEB-INF/jboss-web.xml /phpMyAdmin/setup/index.php /examples/feed-viewer/feed-proxy.php\} mimetypes \{.htm text/html .html text/html .webp image/webp\} nrequests 0 sock ::aio.sock[0-9]+ sourced \{\} uagent \{Amazonbot \{Windows 9\} \{Download Master\} Ezooms/ DotBot HTTrace AhrefsBot MicroMessenger \{OPPO A33 Build\} SemrushBot MegaIndex.ru MJ12bot Chrome/0.A.B.C Neevabot/ BLEXBot/ Synapse\} chan ::aio.sockstream[0-9]+ REQUEST_METHOD GET PATH_INFO / QUERY_STRING \{\} HTTP_USER_AGENT curl/.* HTTP_ACCEPT \*/\*}
 
-test b3k-004.003 {parse-hdr test2} -body {
+test b3k-004.003 {parse-hdr PATH_INFO, REQUEST_URI, QUERY_STRING test} -body {
   debug $script {
     # set breakpoint (A) (once server running)
     b proc:parse-hdr:1
