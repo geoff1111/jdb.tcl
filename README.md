@@ -94,7 +94,7 @@ invoked in the background at the debugger command prompt to connect:
 
 Conventions can be used to facilitate testing. To simplify capturing
 specific output (ignoring the rest) testing.tcl captures any debug
-output surrounded with XML tags <dbg> and </dbg>.
+output surrounded with XML tags \<dbg\> and \</dbg\>.
 
 When used with the "testing.tcl" helper script (which sources JimTcl
 "tcltest.tcl"), the debugger can be used for unit and/or integration
