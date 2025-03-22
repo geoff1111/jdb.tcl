@@ -3,6 +3,7 @@
 # and JimTcl's "tcltest.tcl". The script file (b3k.tcl) which is the target of 
 # these tests is not included in this repository.
 # Copyright (c) Geoffrey P. Messer 2025.
+# GNU Affero General Public Licensed (Version 3).
 
 source [file join [file dirname [info script]] testing.tcl]
 constraint cmd puts
