@@ -9,7 +9,7 @@ using the "testing.tcl" helper script. Command line synopsis:
 
 Jdb.tcl creates an "unknown" command as the debugger. It redefines
 "proc" so that any JIM_SCRIPT proc will be named _cmd instead of cmd.
-Almost all builtins are named from _cmd to cmd.
+Almost all builtins are named from cmd to _cmd.
 
 JIM_SCRIPT cannot define "unknown" and cannot redefine "proc". Thus
 jdb.tcl cannot be used to debug itself, because it redefines proc and
