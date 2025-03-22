@@ -1,5 +1,5 @@
 #! ./jimsh
-# Adjust the path above to the jimsh path, e.g. /usr/bin/jimsh
+# Adjust the path above to path for jimsh, e.g. /usr/bin/jimsh
 
 if {$argv in {-h -? --help}} {
   puts {
@@ -48,7 +48,7 @@ Specific help on subcommand "subcmd" is available with "h subcmd"
 Jdb.tcl reads from stdin ("-") or a JDB_COMMAND_FILE to accept
 input (debugger commands) using an array variable ::debug(in).
 Command input is overwritten to file "debug.history" using file handle
-variable ::debut(out). To rerun the previous sequence of debugger
+variable ::debug(out). To rerun the previous sequence of debugger
 commands use:
 
     ./jdb.tcl debug.history JIMTCL_SCRIPT [ARG ...]
