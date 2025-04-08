@@ -18,7 +18,13 @@ unknown.
 Empirically, the author determined that certain builtins could not be
 renamed on a Debian system (if, pid, regexp and tailcall). You will
 need to perform tests on your system if these need to be renamed, and
-success is not guaranteed.
+success is not guaranteed. (Further, if the "package" extension of 
+JimTcl is omitted, jdb.tcl will fail because it will not create the
+"binary" command (and any other pure-tcl-implemented commands) and
+will give a cryptic error message about "append" not being a command,
+when jdb.tcl tries to rename "binary". This probably relates to the
+error mechanism reporting the absence of "binary" invoking "append", 
+which has been renamed to "_append".)
 
 "Unknown" is first called to rename most builtins (from cmd to _cmd);
 within the new "unknown" builtins are referred to by their new name
