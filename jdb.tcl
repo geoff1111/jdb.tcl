@@ -331,6 +331,10 @@ Debugger driven development becomes possible.
   _set ::debug(active) 1
  }
  # the final two commands are purposely out of alphabetical order (below):
+ # the list below may need to be adjusted according to the extensions which are
+ # used in jimsh. For instance, if the "package" extension is omitted from
+ # jimsh, jdb.tcl will fail when it tries to rename "binary", and give a cryptic
+ # error message about not being able to rename "append".
  unknown after alarm alias append apply array binary break catch cd class \
    clock close collect concat continue curry defer dict ensemble env eof eval \
    exec exists exit expr fconfigure file fileevent finalize flush for format \
