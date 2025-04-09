@@ -336,22 +336,16 @@ Debugger driven development becomes possible.
   }
   _set ::debug(active) 1
  }
- # the final two commands are purposely out of alphabetical order (below):
- # the list below may need to be adjusted according to the extensions which are
- # used in jimsh. For instance, if the "package" extension is omitted from
- # jimsh, jdb.tcl will fail when it tries to rename "binary", and give a cryptic
- # error message about not being able to rename "append".
- unknown after alarm alias append apply array binary break catch cd class \
-   clock close collect concat continue curry defer dict ensemble env eof eval \
-   exec exists exit expr fconfigure file fileevent finalize flush for format \
-   function getref gets glob global incr info interp join kill lambda lappend \
-   lassign lindex linsert list llength lmap lrange lset load load_ssl_certs \
-   local loop lrepeat lreplace lreverse lsearch lsort namespace open os.fork \
-   os.gethostname os.getids os.uptime pack package parray pipe popen proc \
-   puts pwd rand range read readdir ref regsub return scan seek set setref \
-   signal sleep socket source split string subst super switch tell throw time \
-   timerate tree try unpack uplevel unset upcall update upvar variable vwait wait \
-   while foreach rename
+ # unknown is delivered a list of builtins to rename.
+ # This list must have "foreach" and "rename" last (as below)
+ # Builtins which (empirically) cannot be renamed, such as if, pid, tailcall
+ # and regexp, found in $::debug(notrenamed) are not supplied to unknown.
+ # Builtins containing + - / * . : or " " are also excluded from renaming (as 
+ # per regexp in expr below).
+ unknown {*}[lmap x [info commands] {
+   expr {$x in [list rename foreach {*}$::debug(notrenamed)]
+         || [regexp {[+-/*.: ]+} $x] ? [continue] : $x}
+ }] foreach rename
  if {[_file readable $argv0]} {
    _source $argv0
  } else {
