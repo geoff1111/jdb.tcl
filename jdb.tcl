@@ -134,6 +134,7 @@ Debugger driven development becomes possible.
         cmd {{} {execute JimTcl "cmd"}}
     } \
     in stdin \
+    notrenamed {if pid regexp tailcall} \
     out [open debug.history w] \
     outfirst 1 \
     retval {} \
