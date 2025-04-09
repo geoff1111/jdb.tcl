@@ -22,15 +22,15 @@ jdb.tcl cannot be used to debug itself, because it redefines proc and
 unknown.
 
 Empirically, the author determined that certain builtins could not be
-renamed on a Debian system (if, pid, regexp and tailcall). You will
+renamed on a Debian system (if, pid, regexp, etc). You will
 need to perform tests on your system if these need to be renamed, and
 success is not guaranteed.
 
 "Unknown" is first called to rename most builtins (from cmd to _cmd);
 within the new "unknown" builtins are referred to by their new name
 (_cmd) to avoid excess recursion. Users should use the _cmd pattern
-for jimtcl builtins at the debugger prompt (except for if, pid, regexp
-and tailcall, as per above).
+for jimtcl builtins at the debugger prompt (except for if, pid, regexp,
+etc, as per above).
 
 Jdb.tcl relies on array ::debug internally. Users are cautioned
 to be thoughtful if using the ::debug array variable. Use of ::debug
@@ -134,7 +134,7 @@ Debugger driven development becomes possible.
         cmd {{} {execute JimTcl "cmd"}}
     } \
     in stdin \
-    notrenamed {if pid regexp tailcall} \
+    notrenamed {if pid regexp tailcall stdin stdout stderr} \
     out [open debug.history w] \
     outfirst 1 \
     retval {} \
@@ -333,8 +333,9 @@ Debugger driven development becomes possible.
  }
  # unknown is delivered a list of builtins to rename.
  # This list must have "foreach" and "rename" last (as below)
- # Builtins which (empirically) cannot be renamed, such as if, pid, tailcall
- # and regexp, found in $::debug(notrenamed) are not supplied to unknown.
+ # Builtins which (empirically) cannot be renamed, such as if, pid, tailcall,
+ # stdin, stdout, stderr and regexp, found in $::debug(notrenamed) are not 
+ # supplied to unknown.
  # Builtins containing + - / * . : or " " are also excluded from renaming (as 
  # per regexp in expr below).
  unknown {*}[lmap x [info commands] {
