@@ -1,7 +1,7 @@
 Small JimTcl debugger
 =====================
 
-`Jdb.tcl` is simple, or at least small--the debugger proper (excluding
+`Jdb.tcl` is simple and small--the debugger proper (excluding
 comments and code implementing this help text, version information etc)
 is implemented in less than 250 single lines of code.
 
