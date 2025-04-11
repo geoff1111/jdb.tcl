@@ -19,7 +19,7 @@ illustrating the kinds of test which can be automated.
 
     source [file join $thisdir testing.tcl]
 
-    need constraint jim
+    needs constraint jim
     constraint cmd puts
 
     test b3k-001.001 {startup test mimetype} -body {
