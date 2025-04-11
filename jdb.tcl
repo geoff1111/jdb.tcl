@@ -260,7 +260,7 @@ or in tests, in virtually any script context.
                 _puts "breakpoint: [_dict get $b location]: [_dict get $b constraint]"
               }
             }
-            {^b .+$} {
+            {^b +.+$} {
               _lappend ::debug(breakpoints) [_dict create location [_lindex $cmd 1] constraint \
                 [_expr {[_llength $cmd] == 2 ? 1 : [_lindex $cmd 2]}]]
             }
@@ -269,7 +269,7 @@ or in tests, in virtually any script context.
                 _puts "break condition: $b"
               }
             }
-            {^bc .+$} {
+            {^bc +.+$} {
               _lappend ::debug(breakconditions) [_lindex $cmd 1]
             }
             ^c$ {
@@ -287,8 +287,8 @@ or in tests, in virtually any script context.
               }
               _puts "Use \"? cmd\" or \"h cmd\" for specific help."
             }
-            {^h .*$} -
-            {^\? .*$} {
+            {^h +.*$} -
+            {^\? +.*$} {
               _set subcmd [_lindex $cmd 1]
               if {[_dict exists $::debug(help) $subcmd]} {
                 _lassign [_dict get $::debug(help) $subcmd] opt msg
