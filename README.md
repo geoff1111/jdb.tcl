@@ -63,12 +63,16 @@ pid, etc).
 Jdb.tcl reads from stdin ("-") or a JDB_COMMAND_FILE to accept
 input (debugger commands) using array element ::debug(in). Command input is
 overwritten to file "debug.history" using file handle variable ::debut(out).
-To rerun the previous sequence of debugger commands use:
+To rerun the previous sequence of debugger commands, first change the name
+of debug.history so that the input is not overwritten as soon as jdb.tcl
+starts:
 
-    ./jdb.tcl debug.history JIMTCL_SCRIPT [ARG ...]
+    mv debug.history debug.history.in
+    ./jdb.tcl debug.history.in JIMTCL_SCRIPT [ARG ...]
 
-The debugger enters interactive mode after the last command in "debug.history"
-is executed. Command sequence files can be created with a text editor.
+The debugger enters interactive mode after the last command in
+"debug.history.in" is executed. Command sequence files can be created with
+a text editor.
 
 The format for specifying breakpoints in JIM_SCRIPT depends on whether
 they are at the toplevel or within a proc. Toplevel breakpoints use the
