@@ -73,12 +73,16 @@ pid, etc).
 Jdb.tcl reads from stdin ("-") or a JDB_COMMAND_FILE to accept
 input (debugger commands) using array element ::debug(in). Command input is
 overwritten to file "debug.history" using file handle variable ::debut(out).
-To rerun the previous sequence of debugger commands use:
+To rerun the previous sequence of debugger commands, first change the name
+of debug.history so that the input is not overwritten as soon as jdb.tcl
+starts:
 
-    ./jdb.tcl debug.history JIMTCL_SCRIPT [ARG ...]
+    mv debug.history debug.history.in
+    ./jdb.tcl debug.history.in JIMTCL_SCRIPT [ARG ...]
 
-The debugger enters interactive mode after the last command in "debug.history"
-is executed. Command sequence files can be created with a text editor.
+The debugger enters interactive mode after the last command in
+"debug.history.in" is executed. Command sequence files can be created with
+a text editor.
 
 The format for specifying breakpoints in JIM_SCRIPT depends on whether
 they are at the toplevel or within a proc. Toplevel breakpoints use the
@@ -232,14 +236,13 @@ or in tests, in virtually any script context.
         _set trimargs [_expr {[_string length $trimargs]>54 ? "[_string range $trimargs 0 51]..." : $trimargs}]
         _puts "\[$::debug(loc)\] $trimargs"
         _while 1 {
-          _puts -nonewline "\[b bc c h n pc pr q si so st\]>> "
+          _puts -nonewline "\[b bc c h n pc pv q si so st\]>> "
           _flush stdout
-          if {$::debug(in) ne "stdin" && [_eof $::debug(in)]} {
+          if {[_gets $::debug(in) cmd]==-1 && $::debug(in) ne "stdin"} {
             _puts "\[input changed to: stdin\]"
             _set ::debug(in) stdin
             _continue
           }
-          _gets $::debug(in) cmd
           if {$::debug(in) ne "stdin"} {
             _puts $cmd
           }
@@ -304,7 +307,7 @@ or in tests, in virtually any script context.
               _puts $::debug(retval)
             }
             ^q$ {
-              _exit 1
+              _exit
             }
             ^si$ {
               _set ::debug(debugcmd) si
@@ -346,7 +349,8 @@ or in tests, in virtually any script context.
       _set ::debug(stackcmdno) [_lrange $::debug(stackcmdno) 0 end-1]
       _return -code $rc $::debug(retval)
     } else {
-      _uplevel _$args
+      # continuing
+      _return [_uplevel _$args]
     }
   }
   _set ::debug(active) 1
