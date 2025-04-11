@@ -105,7 +105,7 @@ the JimTcl script is altered, tests may become out of sync.
 
 Conventions can be used to facilitate testing. To simplify capturing
 specific output (ignoring the rest) testing.tcl captures any debug
-output surrounded by XML tags <dbg> and </dbg>.
+output surrounded by XML tags \<dbg\> and \</dbg\>.
 
 When used with the "testing.tcl" helper script (which sources JimTcl
 "tcltest.tcl"), the debugger can be used for unit and/or integration
