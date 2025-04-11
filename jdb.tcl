@@ -307,9 +307,7 @@ or in tests, in virtually any script context.
             ^pv$ {
               _puts $::debug(retval)
             }
-            ^q$ {
-              _exit
-            }
+            ^q$ _exit
             ^si$ {
               _set ::debug(debugcmd) si
               _break
