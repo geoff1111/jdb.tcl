@@ -62,7 +62,7 @@ pid, etc).
 
 Jdb.tcl reads from stdin ("-") or a JDB_COMMAND_FILE to accept
 input (debugger commands) using array element ::debug(in). Command input is
-overwritten to file "debug.history" using file handle variable ::debut(out).
+overwritten to file "debug.history" using file handle variable ::debug(out).
 To rerun the previous sequence of debugger commands, first change the name
 of debug.history so that the input is not overwritten as soon as jdb.tcl
 starts:
