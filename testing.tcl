@@ -4,7 +4,7 @@
 # GNU Affero General Public Licenced (Version 3.0).
 
 if {$argv in {-v -V --version}} {
-  puts "testing.tcl version 0.1"
+  puts "testing.tcl version 0.2"
 } elseif {$argv in {-h -? --help}} {
   puts {
 The following is an example of a test file for a simple webserver
@@ -28,8 +28,8 @@ illustrating the kinds of test which can be automated.
         bc {$::debug(tclcmd) eq "foreach"}
         c
         # breakcondition (A)
-        _puts <dbg>$::w4(_mimetype)</dbg>
-        _exit
+        pd $::w4(_mimetype)
+        exit
       }
     } -result {text/html; charset=utf-8}
 
@@ -39,11 +39,11 @@ illustrating the kinds of test which can be automated.
         c
         bc {[_exists ::w4]}
         c
-        _set ::debug(breakconditions) {}
+        bcr
         bc {$::w4(_mxage) ne 120}
         c
-        _puts <dbg>$::w4(_mxage)</dbg>
-        _exit
+        pd $::w4(_mxage)
+        exit
       }
     } -result {1024}
 
@@ -51,8 +51,8 @@ illustrating the kinds of test which can be automated.
       debug $tclsh "$script -max-age xxx" {
         bc {$::debug(tclcmd) eq "puts"}
         c
-        _puts <dbg>$::w4(_mxage),$val</dbg>
-        _exit
+        pd $::w4(_mxage),$val
+        exit
       }
     } -result {120,xxx}
 
@@ -60,8 +60,8 @@ illustrating the kinds of test which can be automated.
       debug $tclsh "$script -sa yes" {
         bc {[_exists ::w4] && $::w4(_sa) ne 0}
         c
-        _puts <dbg>$::w4(_sa)</dbg>
-        _exit
+        pd $::w4(_sa)
+        exit
       }
     } -result {1}
 
@@ -69,12 +69,12 @@ illustrating the kinds of test which can be automated.
       debug $tclsh "$script -sa no" {
         bc {[_exists ::w4]}
         c
-        _set ::w4(_sa) 4
-        _set ::debug(breakconditions) {}
+        set ::w4(_sa) 4
+        bcr
         bc {$::w4(_sa) ne 4}
         c
-        _puts <dbg>$::w4(_sa)</dbg>
-        _exit
+        pd $::w4(_sa)
+        exit
       }
     } -result {0}
 
@@ -86,14 +86,14 @@ illustrating the kinds of test which can be automated.
         bc {$::debug(tclcmd) eq "puts"}
         c
         # breakcondition (B): action: start client
-        _exec curl 127.0.0.1:8080 &
+        exec curl 127.0.0.1:8080 &
         c
         # breakpoint (A): set breakcondition (C) when ::w4(REMOTE_PORT) is set
         bc {$::w4(REMOTE_PORT) ne {}}
         c
         # breakcondition (C): print dbg values and exit
-        _puts <dbg>$::w4(REMOTE_ADDR):$::w4(REMOTE_PORT)</dbg>
-       _exit
+        pd $::w4(REMOTE_ADDR):$::w4(REMOTE_PORT)
+        exit
      }
     } -match regexp -result {^127.0.0.1:[0-9]+$}
 
