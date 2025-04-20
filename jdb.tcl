@@ -5,7 +5,7 @@
 # GNU Affero General Public Licenced (Version 3.0).
 
 if {$argv in {-v -V --version}} {
-  puts "jdb.tcl version 0.1"
+  puts "jdb.tcl version 0.2"
 } elseif {$argv in {-h -? --help}} {
   puts {
 Small JimTcl debugger
@@ -13,7 +13,7 @@ Small JimTcl debugger
 
 `Jdb.tcl` is simple and small--the debugger proper (excluding
 comments and code implementing this help text, version information etc)
-is implemented in less than 250 single lines of code.
+is implemented in about 250 single lines of code.
 
 `Jdb.tcl` can be used at at the command line or in JimTcl tests (tcltest)
 using the `testing.tcl` helper script. Command line synopsis:
@@ -34,7 +34,8 @@ Empirically, the author determined that certain JimTcl builtins cannot be
 renamed on a Debian system, or if renamed, the functionality of `jdb.tcl`
 is impaired. These are: `if`, `pid`, `regexp`, `tailcall`, `stdin`, `stdout`
 and `stderr`. (You may need to perform tests on your system if any of these
-need to be renamed, and success is not guaranteed.)
+need to be renamed, and success is not guaranteed.) This issue is significant
+insofar as it is not possible to break on these particular builtins.
 
 The debugger control commands `si` (step in), `so` (step out),
 `n` (next), `c` (continue) and `q` (quit debugger) directly control
@@ -44,7 +45,13 @@ to exit).
 
 Breakpoints and breakconditions are set with `b` and `bc` respectively
 and either can cause execution of `JIM_SCRIPT` to pause and for control to
-be returned to the user at the debugger prompt.
+be returned to the user at the debugger prompt. `bcr` is helpful to reset
+the break condition list. In interactive mode, the debugger will
+break on the commands `exit` or `error` allowing further investigation
+of problems before the debugger exits. In non-interactive mode `exit` and
+`error` are not automatically set as break conditions, so the debugger
+will exit if these are met and are not manually set as break conditions.
+(This latter behavior is generally appropriate for batch mode).
 
 All other debugger commands display information. For instance, the debugger
 command `h` (or `?`) display general help consisting of a synopsis of all
@@ -53,20 +60,17 @@ debugger commands. Specific help on subcommand "subcmd" is available with
 
 In addition to debugger control and display commands, any JimTcl command
 can be used at the debugger prompt, including `exec`, so debugging can
-extend to more complex JimTcl scripts such as webservers. The `_cmd` pattern
-should be used for most JimTcl builtins at the debugger prompt (except for
-those which are not renamed such as `if`, `pid`, etc). Tcl commands extending
-over multiple lines are supported. Once the debugger reaches the point
+extend to more complex JimTcl scripts such as webservers. Tcl commands can
+extend over multiple lines. Once the debugger reaches the point
 immediately prior to the webserver accepting a connection, `curl` could be
 invoked in the background at the debugger command prompt to connect:
 
-    _exec curl 127.0.0.1:8080 &
+    exec curl 127.0.0.1:8080 &
 
 `Jdb.tcl` relies on array `::debug` internally. Use of `::debug` enables
-various arbitrary functions to be achieved. (For example, to remove all break
-conditions the JimTcl command `_set ::debug(breakconditions) {}` can be
-used at the debugger prompt.) Peruse `::debug` array initialization in the
-source of `jdb.tcl` to assess what ad hoc functions might be achievable.
+various arbitrary functions to be achieved. Peruse `::debug` array
+initialization in the source of `jdb.tcl` to assess what ad hoc functions
+might be achievable.
 
 When invoked, the debugger breaks at the first JimTcl command of `JIM_SCRIPT`
 using `si` (excluding JimTcl commands which cannot be renamed such as `if`,
@@ -88,7 +92,7 @@ a text editor.
 
 The format for specifying breakpoints in `JIM_SCRIPT` depends on whether
 they are at the toplevel or within a proc. Toplevel breakpoints use the
-format `file:FILENAME:LINE`. Breakpoints within a proc are formatted 
+format `file:FILENAME:LINE`. Breakpoints within a proc are formatted
 `proc:PROCNAME:CMD_NUMBER`. The `CMD_NUMBER` is the number of the command
 within the proc (including subcommands) counting from 1.
 
@@ -116,7 +120,11 @@ the JimTcl script is altered, tests may become out of sync.
 
 Conventions can be used to facilitate testing. To simplify capturing
 specific output (ignoring the rest) testing.tcl captures any debug
-output surrounded by XML tags `<dbg>` and `</dbg>`.
+output surrounded by XML tags `<dbg>` and `</dbg>`. `Jdb.tcl` has a
+convenience command `pd expr` which will print the value of `expr`
+surrounded by `<dbg>` tags. Importantly, `expr` must contain no line breaks
+(i.e. it must be on a single line, however long), otherwise `jdb.tcl`
+will likely malfunction.
 
 When used with the `testing.tcl` helper script (which sources JimTcl
 `tcltest.tcl`), the debugger can be used for unit and/or integration
@@ -130,17 +138,21 @@ or in tests, in virtually any script context.
 } else {
   set ::debug [dict create \
     active 0 \
-    breakconditions {} \
+    bcreset [expr {[stdin isatty]
+              ? {{$::debug(tclcmd) eq "exit"} {$::debug(tclcmd) eq "error"}}
+              : {}}] \
     breakpoints {} \
     debugcmd si \
     help {
         b {{?loc? ?constraint?} {print/add breakpoint/constraint}}
         bc {{?condition?} {print/add break condition}}
+        bcr {{} {reset break conditions}}
         c {{} {continue to next breakpoint}}
         h {{?cmd?} {print general or specific help}}
         ? {{?cmd?} {print general or specific help}}
         n {{} {step to next command}}
         pc {{} {print complete command and args}}
+        pd {{expr} {print <dbg>expr</dbg> (expr - single line)}
         pv {{} {print return value of last command}}
         q {{} {exit debugger}}
         si {{} {step into proc}}
@@ -158,6 +170,7 @@ or in tests, in virtually any script context.
     stack toplevel \
     stackcmdno 0 \
     tclcmd {}]
+ set ::debug(breakconditions) $::debug(bcreset)
  if {[lindex $argv 0] ne "-"} {
   set ::debug(in) [open [lindex $argv 0] r]
  }
@@ -175,7 +188,9 @@ or in tests, in virtually any script context.
       _puts stderr "error: unknown command $args"
       _exit 1
     }
-    if {$::debug(active)} {
+    if {! $::debug(active)} {
+      _return [_uplevel _$args]
+    } else {
       _set ::debug(tclcmd) [_lindex $args 0]
       _lappend ::debug(stack) $::debug(tclcmd)
       _lappend ::debug(stackcmdno) 0
@@ -237,7 +252,7 @@ or in tests, in virtually any script context.
         _set trimargs [_expr {[_string length $trimargs]>54 ? "[_string range $trimargs 0 51]..." : $trimargs}]
         _puts "\[$::debug(loc)\] $trimargs"
         _while 1 {
-          _puts -nonewline "\[b bc c h n pc pv q si so st\]>> "
+          _puts -nonewline "\[b bc bcr c h n pc pd pv q si so st\]>> "
           _flush stdout
           if {[_gets $::debug(in) cmd]==-1 && $::debug(in) ne "stdin"} {
             _puts "\[input changed to: stdin\]"
@@ -254,13 +269,14 @@ or in tests, in virtually any script context.
           } else {
             _puts -nonewline $::debug(out) \n$cmd
           }
-          _switch -regexp -- [_string trim $cmd] {
+          _set cmd [_string trim $cmd]
+          _switch -regexp -- $cmd {
             ^b$ {
               _foreach b $::debug(breakpoints) {
                 _puts "breakpoint: [_dict get $b location]: [_dict get $b constraint]"
               }
             }
-            {^b +.+$} {
+            {^b .+$} {
               _lappend ::debug(breakpoints) [_dict create location [_lindex $cmd 1] constraint \
                 [_expr {[_llength $cmd] == 2 ? 1 : [_lindex $cmd 2]}]]
             }
@@ -269,9 +285,8 @@ or in tests, in virtually any script context.
                 _puts "break condition: $b"
               }
             }
-            {^bc +.+$} {
-              _lappend ::debug(breakconditions) [_lindex $cmd 1]
-            }
+            {^bc .+$} {_lappend ::debug(breakconditions) [_lindex $cmd 1]}
+            ^bcr$ {_set ::debug(breakconditions) $::debug(bcreset)}
             ^c$ {
               _set ::debug(debugcmd) c
               _set getdebugcmd 0
@@ -287,8 +302,8 @@ or in tests, in virtually any script context.
               }
               _puts "Use \"? cmd\" or \"h cmd\" for specific help."
             }
-            {^h +.*$} -
-            {^\? +.*$} {
+            {^h .+$} -
+            {^\? .+$} {
               _set subcmd [_lindex $cmd 1]
               if {[_dict exists $::debug(help) $subcmd]} {
                 _lassign [_dict get $::debug(help) $subcmd] opt msg
@@ -301,12 +316,12 @@ or in tests, in virtually any script context.
               _set ::debug(debugcmd) n
               _break
             }
-            ^pc$ {
-              _puts $args
+            ^pc$ {_puts $args}
+            {^pd .+$} {
+               # needs to operate up one level for args to _puts
+               _uplevel _puts <dbg>[_string range $cmd 3 end]</dbg>
             }
-            ^pv$ {
-              _puts $::debug(retval)
-            }
+            ^pv$ {_puts $::debug(retval)}
             ^q$ _exit
             ^si$ {
               _set ::debug(debugcmd) si
@@ -347,9 +362,6 @@ or in tests, in virtually any script context.
       _set ::debug(stack) [_lrange $::debug(stack) 0 end-1]
       _set ::debug(stackcmdno) [_lrange $::debug(stackcmdno) 0 end-1]
       _return -code $rc $::debug(retval)
-    } else {
-      # continuing
-      _return [_uplevel _$args]
     }
   }
   _set ::debug(active) 1
